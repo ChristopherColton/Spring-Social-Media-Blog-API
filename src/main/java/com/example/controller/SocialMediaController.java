@@ -1,13 +1,18 @@
 package com.example.controller;
 
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.example.service.AccountService;
 import com.example.service.MessageService;
@@ -80,4 +85,66 @@ public class SocialMediaController
 
         return ResponseEntity.status(200).body(newMessage);
     }
+
+    //delete messages
+    @DeleteMapping("/messages/{messageId}")
+    public ResponseEntity<?> deleteMessage(@PathVariable Integer messageId)
+    {
+        boolean deleteMessage = messageService.deleteMessage(messageId);
+
+        if(deleteMessage)
+        {
+            return ResponseEntity.status(200).body(1);
+        }
+        else
+        {
+            return ResponseEntity.status(200).body("");
+        }
+    }
+
+    //update messages
+    @PatchMapping("/messages/{messageId}")
+    public ResponseEntity<?> updateMessage(@PathVariable Integer messageId, @RequestBody Message message)
+    {
+        if(message.getMessageText().isBlank() || message.getMessageText().length() > 255)
+        {
+            return ResponseEntity.status(400).body("");
+        }
+
+        boolean newMessage = messageService.updateMessage(messageId, message.getMessageText());
+
+        if(newMessage)
+        {
+            return ResponseEntity.status(200).body(1);
+        }
+        else
+        {
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    //get all messages
+    @GetMapping("/messages")
+    public ResponseEntity<List<Message>> getAllMessages()
+    {
+        return ResponseEntity.status(200).body(messageService.getAllMessages());
+    }
+
+    //get message by id
+    @GetMapping("/messages/{messageId}")
+    public ResponseEntity<?> getMessageById(@PathVariable Integer messageId)
+    {
+        Optional<Message> message = messageService.getMessageById(messageId);
+
+        if(message.isPresent())
+        {
+            return ResponseEntity.status(200).body(message.get());
+        }
+        else
+        {
+            return ResponseEntity.status(200).body("");
+        }
+    }
+    
+    
 }

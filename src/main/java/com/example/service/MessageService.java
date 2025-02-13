@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.example.entity.Message;
 import com.example.repository.MessageRepository;
 import java.util.Optional;
+import java.util.List;
 
 @Service
 public class MessageService 
@@ -26,5 +27,36 @@ public class MessageService
             return true;
         }
         return false;
+    }
+
+    public boolean updateMessage(Integer id, String text)
+    {
+        Optional<Message> messageOptional = messageRepository.findById(id);
+
+        if(messageOptional.isPresent())
+        {
+            Message message = messageOptional.get();
+
+            message.setMessageText(text);
+            messageRepository.save(message);
+
+            return true;
+        }
+        return false;
+    }
+
+    public List<Message> getAllMessages()
+    {
+        return messageRepository.findAll();
+    }
+
+    public Optional<Message> getMessageById(Integer id)
+    {
+        return messageRepository.findById(id);
+    }
+
+    public List<Message> getAllMessagesByUser(Integer id)
+    {
+        return messageRepository.findByPostedBy(id);
     }
 }
