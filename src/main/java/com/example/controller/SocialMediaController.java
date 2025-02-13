@@ -1,5 +1,7 @@
 package com.example.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +13,7 @@ import com.example.service.AccountService;
 import com.example.service.MessageService;
 
 import com.example.entity.Account;
+import com.example.entity.Message;
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller using Spring. The endpoints you will need can be
@@ -28,7 +31,8 @@ public class SocialMediaController
     @Autowired
     private MessageService messageService;
 
-    //new account
+    //ACCOUNT CONTROL
+    //register new account
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Account account)
     {
@@ -36,6 +40,44 @@ public class SocialMediaController
         {
             return ResponseEntity.status(400).build();
         }
-        return null;
+        if(accountService.usernameExists(account.getUsername()))
+        {
+            return ResponseEntity.status(409).build();
+        }
+
+        Account newAccount = accountService.createAccount(account);
+
+        return ResponseEntity.status(200).body(newAccount);
+    }
+
+    //login user
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Account account)
+    {
+        Optional<Account> authOptional = accountService.auth(account.getUsername(), account.getPassword());
+        
+        if(authOptional.isPresent())
+        {
+            return ResponseEntity.status(200).body(authOptional.get());
+        }
+        else
+        {
+            return ResponseEntity.status(401).build();
+        }
+    }
+
+    //MESSAGE CONTROL
+    //create a message
+    @PostMapping("/messages")
+    public ResponseEntity<?> createMessage(@RequestBody Message message)
+    {
+        if(message.getMessageText().isBlank() || message.getMessageText().length() > 255 || !accountService.existsById(message.getPostedBy()))
+        {
+            return ResponseEntity.status(400).build();
+        }
+
+        Message newMessage = messageService.createMessage(message);
+
+        return ResponseEntity.status(200).body(newMessage);
     }
 }
