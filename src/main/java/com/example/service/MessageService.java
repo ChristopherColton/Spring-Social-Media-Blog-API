@@ -29,7 +29,7 @@ public class MessageService
         return false;
     }
 
-    public boolean updateMessage(Integer id, String text)
+    public boolean updateMessage(Integer id, String messageText)
     {
         Optional<Message> messageOptional = messageRepository.findById(id);
 
@@ -37,7 +37,7 @@ public class MessageService
         {
             Message message = messageOptional.get();
 
-            message.setMessageText(text);
+            message.setMessageText(messageText);
             messageRepository.save(message);
 
             return true;
@@ -55,8 +55,8 @@ public class MessageService
         return messageRepository.findById(id);
     }
 
-    public List<Message> getAllMessagesByUser(Integer id)
+    public List<Message> getAllMessagesByUser(Integer accountId)
     {
-        return messageRepository.findByPostedBy(id);
+        return messageRepository.findByPostedBy(accountId);
     }
 }
